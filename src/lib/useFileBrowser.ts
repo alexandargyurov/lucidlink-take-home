@@ -12,6 +12,7 @@ type FileBrowser = {
   directories: string[];
   files: string[];
   createFile: (fileName: string, content: string) => Promise<void>;
+  createDirectory: (directory: string) => Promise<void>;
   deleteFile: (fileName: string) => Promise<void>;
 };
 
@@ -54,6 +55,17 @@ export function useFileBrowser(): FileBrowser {
     setFiles(response.Contents?.map((file) => file.Key || "") || []);
   };
 
+  const createDirectory = async (directory: string): Promise<void> => {
+    await s3
+      .putObject({
+        Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+        Key: `${currentDir}${directory}/.keep`,
+        Body: "",
+      })
+      .promise();
+    fetchFiles();
+  };
+
   const createFile = async (
     fileName: string,
     content: string
@@ -61,7 +73,7 @@ export function useFileBrowser(): FileBrowser {
     await s3
       .putObject({
         Bucket: process.env.REACT_APP_AWS_BUCKET as string,
-        Key: `${currentDir}/${fileName}`,
+        Key: `${currentDir}${fileName}.txt`,
         Body: content,
       })
       .promise();
@@ -72,11 +84,11 @@ export function useFileBrowser(): FileBrowser {
     await s3
       .deleteObject({
         Bucket: process.env.REACT_APP_AWS_BUCKET as string,
-        Key: `${currentDir}/${fileName}`,
+        Key: fileName,
       })
       .promise();
     fetchFiles();
   };
 
-  return { directories, files, createFile, deleteFile };
+  return { directories, files, createFile, createDirectory, deleteFile };
 }

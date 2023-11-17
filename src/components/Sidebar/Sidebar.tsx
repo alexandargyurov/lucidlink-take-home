@@ -17,6 +17,8 @@ export function Sidebar(): React.JSX.Element {
     <div className={styles.sidebarContainer}>
       <h2>File Directories</h2>
 
+      <button onDoubleClick={() => handleDoubleClick("/")}>/</button>
+
       {directories.map((directory) => (
         <button
           key={directory}
