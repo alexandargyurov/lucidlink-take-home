@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useBreadcrumbs from "use-react-router-breadcrumbs";
+import styles from "./FileBrowser.module.css";
 import { useFileBrowser } from "../../lib/useFileBrowser";
-
-import "./FileBrowser.module.css";
 
 import { ModalNewDirectory } from "../ModalNewDirectory/ModalNewDirectory";
 import { ModalNewFile } from "../ModalNewFile/ModalNewFile";
@@ -12,18 +13,26 @@ const FileBrowser = (): React.JSX.Element => {
   const [showModalFile, setShowModalFile] = useState(false);
   const [fileName, setShowModalRead] = useState<string>();
   const { files, deleteFile, deleteDirectory } = useFileBrowser();
+  const breadcrumbs = useBreadcrumbs();
+  const navigate = useNavigate();
 
   return (
     <>
-      <div style={{ width: "100%" }}>
-        <div>
-          <button onClick={() => setShowModalDirectory(true)}>
-            new directory
-          </button>
-          <button onClick={() => setShowModalFile(true)}>new file</button>
+      <div className={styles.fileBrowser}>
+        <div className={styles.header}>
+          <div className={styles.breadcrums}>
+            {breadcrumbs.map(({ breadcrumb }) => breadcrumb)}
+          </div>
+
+          <div>
+            <button onClick={() => setShowModalDirectory(true)}>
+              new directory
+            </button>
+            <button onClick={() => setShowModalFile(true)}>new file</button>
+          </div>
         </div>
 
-        <table>
+        <table className={styles.table}>
           <thead>
             <tr>
               <th>File Name</th>
@@ -43,7 +52,15 @@ const FileBrowser = (): React.JSX.Element => {
                   {file}
                 </td>
                 <td>
-                  <button onClick={() => setShowModalRead(file)}>Open</button>
+                  <button
+                    onClick={() =>
+                      file.endsWith(".txt")
+                        ? setShowModalRead(file)
+                        : navigate(file)
+                    }
+                  >
+                    Open
+                  </button>
                   <button
                     onClick={() =>
                       file.endsWith(".txt")
@@ -59,6 +76,7 @@ const FileBrowser = (): React.JSX.Element => {
           </tbody>
         </table>
       </div>
+
       {showModalDirectory && (
         <ModalNewDirectory onClose={() => setShowModalDirectory(false)} />
       )}
