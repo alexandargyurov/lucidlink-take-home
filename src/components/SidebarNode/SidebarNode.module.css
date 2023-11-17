@@ -1,0 +1,9 @@
+.sidebarNode {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 16px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+}

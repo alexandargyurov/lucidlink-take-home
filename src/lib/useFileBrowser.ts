@@ -73,7 +73,7 @@ export function useFileBrowser(): FileBrowser {
     await s3
       .putObject({
         Bucket,
-        Key: `${currentDir}/${directory}/.keep`,
+        Key: `${currentDir}${directory}/.keep`,
         Body: "",
       })
       .promise();
@@ -87,7 +87,7 @@ export function useFileBrowser(): FileBrowser {
     await s3
       .putObject({
         Bucket,
-        Key: `${currentDir}/${fileName}.txt`,
+        Key: `${currentDir}${fileName}.txt`,
         Body: content,
       })
       .promise();

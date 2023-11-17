@@ -1,4 +1,5 @@
 .sidebarContainer {
+  text-align: center;
   border-right: 2px solid black;
   width: 15%;
 }
@@ -6,4 +7,5 @@
 .directoriesContainer {
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
