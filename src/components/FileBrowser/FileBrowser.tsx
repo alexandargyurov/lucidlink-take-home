@@ -5,10 +5,12 @@ import "./FileBrowser.module.css";
 
 import { ModalNewDirectory } from "../ModalNewDirectory/ModalNewDirectory";
 import { ModalNewFile } from "../ModalNewFile/ModalNewFile";
+import { ModalReadFile } from "../ModalReadFile/ModalReadFile";
 
 const FileBrowser = (): React.JSX.Element => {
   const [showModalDirectory, setShowModalDirectory] = useState(false);
   const [showModalFile, setShowModalFile] = useState(false);
+  const [fileName, setShowModalRead] = useState<string>();
   const { files, deleteFile, deleteDirectory } = useFileBrowser();
 
   return (
@@ -41,7 +43,7 @@ const FileBrowser = (): React.JSX.Element => {
                   {file}
                 </td>
                 <td>
-                  <button onClick={() => deleteFile(file)}>Open</button>
+                  <button onClick={() => setShowModalRead(file)}>Open</button>
                   <button
                     onClick={() =>
                       file.endsWith(".txt")
@@ -57,12 +59,18 @@ const FileBrowser = (): React.JSX.Element => {
           </tbody>
         </table>
       </div>
-
       {showModalDirectory && (
         <ModalNewDirectory onClose={() => setShowModalDirectory(false)} />
       )}
       {showModalFile && (
         <ModalNewFile onClose={() => setShowModalFile(false)} />
+      )}
+
+      {fileName && (
+        <ModalReadFile
+          fileName={fileName}
+          onClose={() => setShowModalRead(undefined)}
+        />
       )}
     </>
   );

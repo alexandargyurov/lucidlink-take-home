@@ -13,6 +13,7 @@ type FileBrowser = {
   files: string[];
   createFile: (fileName: string, content: string) => Promise<void>;
   createDirectory: (directory: string) => Promise<void>;
+  readFile: (fileName: string) => Promise<string>;
   deleteFile: (fileName: string) => Promise<void>;
   deleteDirectory: (directory: string) => Promise<void>;
 };
@@ -115,6 +116,17 @@ export function useFileBrowser(): FileBrowser {
     fetchFiles();
   };
 
+  const readFile = async (fileName: string): Promise<string> => {
+    const response = await s3
+      .getObject({
+        Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+        Key: fileName,
+      })
+      .promise();
+
+    return response.Body?.toString() || "";
+  };
+
   const deleteFile = async (fileName: string): Promise<void> => {
     await s3
       .deleteObject({
@@ -130,6 +142,7 @@ export function useFileBrowser(): FileBrowser {
     files,
     createFile,
     createDirectory,
+    readFile,
     deleteFile,
     deleteDirectory,
   };
