@@ -6,18 +6,29 @@ import "./index.css";
 
 import App from "./App";
 
+import { PrivateRoute } from "./components/PrivateRoute/PrivateRoute";
+import { PageLogin } from "./pages/Login/Login";
+
 import reportWebVitals from "./reportWebVitals";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: (
+      <PrivateRoute>
+        <App />
+      </PrivateRoute>
+    ),
     errorElement: <>Error!</>,
     children: [
       {
         path: ":directory/*",
       },
     ],
+  },
+  {
+    path: "/login",
+    element: <PageLogin />,
   },
 ]);
 

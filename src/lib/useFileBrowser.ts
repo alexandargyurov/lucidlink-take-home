@@ -2,12 +2,6 @@ import { useState, useEffect, useMemo } from "react";
 import { S3 } from "aws-sdk";
 import { useLocation } from "react-router-dom";
 
-const s3 = new S3({
-  accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-  region: process.env.REACT_APP_AWS_REGION,
-});
-
 type FileBrowser = {
   directories: string[];
   files: string[];
@@ -24,6 +18,13 @@ export function useFileBrowser(): FileBrowser {
   const location = useLocation();
   const currentDir = useMemo(() => location.pathname, [location]);
 
+  const s3 = new S3({
+    accessKeyId: localStorage.getItem("AWS_ACCESS_KEY_ID") as string,
+    secretAccessKey: localStorage.getItem("AWS_SECRET_ACCESS_KEY") as string,
+    region: localStorage.getItem("AWS_REGION") as string,
+  });
+  const Bucket = localStorage.getItem("AWS_BUCKET") as string;
+
   useEffect(() => {
     fetchFiles();
   }, [currentDir]);
@@ -35,7 +36,7 @@ export function useFileBrowser(): FileBrowser {
   const fetchDirectories = async (): Promise<void> => {
     const response = await s3
       .listObjectsV2({
-        Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+        Bucket,
       })
       .promise();
 
@@ -54,7 +55,7 @@ export function useFileBrowser(): FileBrowser {
   const fetchFiles = async (): Promise<void> => {
     const response = await s3
       .listObjectsV2({
-        Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+        Bucket,
         Prefix: currentDir,
         Delimiter: "/",
       })
@@ -71,7 +72,7 @@ export function useFileBrowser(): FileBrowser {
   const createDirectory = async (directory: string): Promise<void> => {
     await s3
       .putObject({
-        Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+        Bucket,
         Key: `${currentDir}/${directory}/.keep`,
         Body: "",
       })
@@ -85,7 +86,7 @@ export function useFileBrowser(): FileBrowser {
   ): Promise<void> => {
     await s3
       .putObject({
-        Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+        Bucket,
         Key: `${currentDir}/${fileName}.txt`,
         Body: content,
       })
@@ -96,7 +97,7 @@ export function useFileBrowser(): FileBrowser {
   const deleteDirectory = async (prefix: string): Promise<void> => {
     const response = await s3
       .listObjectsV2({
-        Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+        Bucket,
         Prefix: prefix,
       })
       .promise();
@@ -108,7 +109,7 @@ export function useFileBrowser(): FileBrowser {
 
       await s3
         .deleteObjects({
-          Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+          Bucket,
           Delete: { Objects: objectsToDelete },
         })
         .promise();
@@ -119,7 +120,7 @@ export function useFileBrowser(): FileBrowser {
   const readFile = async (fileName: string): Promise<string> => {
     const response = await s3
       .getObject({
-        Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+        Bucket,
         Key: fileName,
       })
       .promise();
@@ -130,7 +131,7 @@ export function useFileBrowser(): FileBrowser {
   const deleteFile = async (fileName: string): Promise<void> => {
     await s3
       .deleteObject({
-        Bucket: process.env.REACT_APP_AWS_BUCKET as string,
+        Bucket,
         Key: fileName,
       })
       .promise();
