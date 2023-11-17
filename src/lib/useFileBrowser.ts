@@ -29,20 +29,25 @@ export function useFileBrowser(): FileBrowser {
 
   useEffect(() => {
     fetchDirectories();
-  }, [currentDir]);
+  }, []);
 
   const fetchDirectories = async (): Promise<void> => {
     const response = await s3
       .listObjectsV2({
         Bucket: process.env.REACT_APP_AWS_BUCKET as string,
-        Delimiter: "/",
-        Prefix: "/",
       })
       .promise();
 
-    setDirectories(
-      response.CommonPrefixes?.map((prefix) => prefix.Prefix || "") || []
-    );
+    const directoriesSet = new Set<string>();
+    response.Contents?.forEach((content) => {
+      const key = content.Key || "";
+      const parts = key.split("/");
+      for (let i = 1; i < parts.length; i++) {
+        directoriesSet.add(parts.slice(0, i).join("/") + "/");
+      }
+    });
+
+    setDirectories(Array.from(directoriesSet));
   };
 
   const fetchFiles = async (): Promise<void> => {
@@ -66,7 +71,7 @@ export function useFileBrowser(): FileBrowser {
     await s3
       .putObject({
         Bucket: process.env.REACT_APP_AWS_BUCKET as string,
-        Key: `${currentDir}${directory}/.keep`,
+        Key: `${currentDir}/${directory}/.keep`,
         Body: "",
       })
       .promise();
@@ -80,7 +85,7 @@ export function useFileBrowser(): FileBrowser {
     await s3
       .putObject({
         Bucket: process.env.REACT_APP_AWS_BUCKET as string,
-        Key: `${currentDir}${fileName}.txt`,
+        Key: `${currentDir}/${fileName}.txt`,
         Body: content,
       })
       .promise();
