@@ -9,7 +9,7 @@ import { ModalNewFile } from "../ModalNewFile/ModalNewFile";
 const FileBrowser = (): React.JSX.Element => {
   const [showModalDirectory, setShowModalDirectory] = useState(false);
   const [showModalFile, setShowModalFile] = useState(false);
-  const { files, deleteFile } = useFileBrowser();
+  const { files, deleteFile, deleteDirectory } = useFileBrowser();
 
   return (
     <>
@@ -42,7 +42,15 @@ const FileBrowser = (): React.JSX.Element => {
                 </td>
                 <td>
                   <button onClick={() => deleteFile(file)}>Open</button>
-                  <button onClick={() => deleteFile(file)}>Delete</button>
+                  <button
+                    onClick={() =>
+                      file.endsWith(".txt")
+                        ? deleteFile(file)
+                        : deleteDirectory(file)
+                    }
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
